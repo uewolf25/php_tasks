@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  web_front:
+    build:
+      context: ./web_front
+    links:
+      - php_task
+    ports:
+      - "80:3128"
+    container_name: web_front
+    networks:
+      - local_net
+
+  php_task:
+    build:
+      context: ./php_task
+      args:
+        - environment=local
+    links: 
+      - mysql
+    domainname: localhost
+    volumes:
+      - ../src/hoge:/var/www/hoge
+      - ../src/vendor:/var/www/vendor
+    container_name: php_task
+    networks:
+      - local_net
+
+  mysql:
+    build:
+      context: ./mysql
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment: 
+      - MYSQL_ROOT_HOST=172.28.0.1
+    ports:
+      - "3306:3306"
+    container_name: mysql_task
+    networks:
+      - local_net
+
+volumes:
+  mysql-data:
+
+networks:
+  local_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/24
+
