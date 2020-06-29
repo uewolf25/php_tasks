@@ -1,0 +1,155 @@
+openapi: 3.0.1
+info:
+  title: Tasks API
+  description: "This is a Simple Task Manager."
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+
+tags:
+  - name: task
+    description: Operations about task
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /tasks:
+    get:
+      tags:
+        - task
+      summary: Get task list
+      responses:
+        200:
+          $ref: "#/components/responses/TaskList"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      tags:
+        - task
+      summary: Create task
+      requestBody:
+        $ref: "#/components/requestBodies/Task"
+      responses:
+        200:
+          $ref: "#/components/responses/Task"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /tasks/{id}:
+    get:
+      tags:
+        - task
+      summary: Get task by id
+      parameters:
+        - $ref: "#/components/parameters/taskId"
+      responses:
+        200:
+          $ref: "#/components/responses/Task"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    put:
+      tags:
+        - task
+      summary: Update task
+      parameters:
+        - $ref: "#/components/parameters/taskId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Task"
+        required: true
+      responses:
+        200:
+          $ref: "#/components/responses/Task"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags:
+        - task
+      summary: Delete task
+      parameters:
+        - $ref: "#/components/parameters/taskId"
+      responses:
+        200:
+          $ref: "#/components/responses/Task"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  parameters:
+    taskId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+
+  requestBodies:
+    Task:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              description:
+                type: string
+            required:
+              - title
+              - description
+      required: true
+
+  responses:
+    Task:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Task"
+
+    TaskList:
+      description: Successful Operation
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Task"
+
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - id
+        - title
+        - description
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - code
+        - message
